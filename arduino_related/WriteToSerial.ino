@@ -1,10 +1,10 @@
- 
+// include appropriate libraries
 #include <MPU6050.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Wire.h>
 
-
+// initialize input and output pins
 int shockPin = 3;
 int tempPin = A0;
 
@@ -29,7 +29,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 
-
+//initialize pins as either input or output
 void setup() {
   pinMode(shockPin, INPUT);
   pinMode(tempPin, INPUT);
@@ -56,30 +56,31 @@ void setup() {
 }
 
 void loop() {
-
+  // check if values are being sent
   if (Serial.available()){
     serialD = Serial.read();
     inval = serialD;
   }
-
+  // calculations for LED bar
   double output1 = (inval/5*8)+2;
   output1 = floor(output1);
   if (output1 > 9){
     output1 = 9;
   }
+  // update LED bar
   for (int i = 2; i <= output1; i++){
     digitalWrite(i,HIGH);
   }
   for (int i = 10; i > output1; i--){
     digitalWrite(i,LOW);
   }
-  
+  // obtain accelerometer values
   Vector sensor_data = accelerometer.readNormalizeAccel();
   int pitch_value = -(atan2(sensor_data.XAxis, sqrt(sensor_data.YAxis*sensor_data.YAxis + sensor_data.ZAxis*sensor_data.ZAxis))*180.0)/M_PI;
   int roll_value = (atan2(sensor_data.YAxis, sensor_data.ZAxis)*180.0)/M_PI;
 
   String value = String(roll_value);
-
+  // write appropriate information to OLED display
   inval = ((abs(pitch_value)/16)+(abs(roll_value)/35))/2;
   inval = 5-inval;
   display.setTextSize(1);
